@@ -1,7 +1,9 @@
 import warnings
 warnings.filterwarnings("ignore")
 
-import sys 
+import pandas as pd
+import numpy as np 
+import math, os, sys 
 from log.logger import Logger, LogLevel
 logger = Logger(LogLevel.DEBUG)
 
@@ -14,13 +16,6 @@ CORPUS : str = "parliament-corpus"
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--dl":
-            logger.info(f"downloading corpus to {DATA_DIR}")
-            PARL_CORPUS_PATH : str = download(
-                CORPUS,
-                data_dir=DATA_DIR
-            )
     try:
         logger.info(f"Loading {DATA_DIR}{CORPUS}...")
         parl_corpus = Corpus(DATA_DIR + CORPUS)
@@ -28,3 +23,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"error loading corpus: {str(e)}")
         logger.debug("run with -dl first?")
+        sys.exit(-1)
+
+    parl_corpus.load_info('utterance',['arcs','q_arcs'])

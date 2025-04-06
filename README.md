@@ -80,4 +80,14 @@ Evaluation of SBERT approach against naiive LLM prompt engineering approach
 
 
 # Specific Measures: Known examples in Convokit
-Analysis of Parliamentary Question Periods
+## Analysis of Parliamentary Question Periods
+- Classic Convokit approach only uses questions verbs, discarding surrounding text and nouns, not complete utterance
+- Tdf -> LSA : Global Utterance Clustering
+- forward context - answers not necessary for our application  
+
+### What to implement with SBERT sentence transformer
+- global transform, implement similar clustering with reduced dimensions to extrapolate topic-term relation
+- implement same forward context, perform same analysis with Expected Conversational Context Framework
+
+Here we can perform analysis on government versus nongovermental question types as described 
+https://github.com/CornellNLP/ConvoKit/blob/master/convokit/expected_context_framework/demos/parliament_demo.ipynb
