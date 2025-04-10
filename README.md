@@ -1,93 +1,119 @@
-# Current framework of realtime transcriptional understanding: 2 Extremes
-## One end: Convokit, built specifically for conversation / large scale corpus processing for conversational understanding, generally predates modern LLM and sentence-transformer
-https://convokit.cornell.edu/documentation/featureExtraction.html
-- [ ] Bag-of-words
-- [ ] Column-normalized tf-idf
-- [ ] Hyperconvo
-- [ ] PhrasingMotifs
-- [ ] PolitenessStrategies
-- [ ] PromptTypes
-- [ ] ExpectedContextModel*
+# RealTime Transcriptional Understanding Framework
 
-### Example: ExpectedContextModel - approach based on contextual understanding of utterances in context
- - based on LSA approach combined with SVD reduction in dimension
-- it models utterances based on their conversational context - specifically how they relate to replies and predecessors in conversations. The model embeds terms and utterances in a latent "context space" where proximity indicates similarity in expected conversational role/function rather than just semantic similarity.
- - They use Latent Semantic Analysis (LSA) to create these embeddings, applying SVD to matrices representing utterance-term and context-term relationships. This creates a shared vector space for terms, utterances and contexts.
- - The focus is on modeling the expected conversational flow and function, not just semantic content. For example, two questions might be embedded close together if they tend to elicit similar types of answers, even if they're about different topics.
+## Overview
 
-#### Key: good for certain tasks (understanding redirection (SCOTUS), therapy, and other tasks in which conversational flow and nuisances are more important than semantics), highly performant (built for large corpus). Lacks in versatility, specific domain specific application
+This project develops a middle-ground approach to conversational understanding that balances performance with flexibility. We compare traditional conversational analysis frameworks with modern LLM approaches and propose a more efficient SBERT-based solution for real-time applications.
 
-The other approaches mentioned above are simpler, often highly performant, yet are very specific and unable to be easily adapted for general use
+## Table of Contents
+- [Current Approaches](#current-approaches)
+  - [Convokit Framework](#convokit-framework)
+  - [LLM-based Approaches](#llm-based-approaches)
+- [Our Proposal: SBERT-based Transformer](#our-proposal-sbert-based-transformer)
+- [Performance Benchmarks](#performance-benchmarks)
+- [Current Research](#current-research)
+- [Implementation Examples](#implementation-examples)
 
+## Current Approaches
 
-## the other end: Instructor LLM based approach - Naiive. Highly general, but high resource consumption, often centralized. Understanding complex text requires very large models practically only available as APIs from large providers such as OpenAI, Anthripic, Google, Meta, etc.
- - prompt engineering approach
- - Current example usage: Current startup providing telephone agents for client information (Swartz center)
- - Current example usage: LLM social media comment analysis/filtering. Overlaps with convokit framework: analysis of Reddit comments to predict certain conversational features (using bag of words)
+We've identified two extremes in the current landscape:
 
+### Convokit Framework
 
-# Proposal: SBERT-based transformer for realtime contextual, semantic, conversational understanding 
-- Generally adaptable to many situations requiring realtime understanding
-    - bidirectional context understanding
-    - semantic and topic relation understanding
-- Much higher performance than LLM prompt engineering approach
-    - able to be distributed: computation can feasilbly run on personal computers, applicable for decentralized computation
-- higher quality and general adaptability than convokit ensemble approach
+[Convokit](https://convokit.cornell.edu/documentation/featureExtraction.html) is specifically built for conversation analysis and large-scale corpus processing, generally predating modern LLMs and sentence transformers.
 
-# Realtime performance measures
-1. Convokit Framework (ExpectedContextModel):
-Factors:
-- LSA + SVD computation is relatively lightweight
-- No deep learning models involved
-- Primarily matrix operations
-- Pre-computed embeddings can be reused
-Expected Latency: ~10-50ms per utterance
-- Matrix operations are fast on CPU
-- Most computation can be vectorized,well-optimized
+**Available Techniques:**
+- Bag-of-words
+- Column-normalized tf-idf
+- Hyperconvo
+- PhrasingMotifs
+- PolitenessStrategies
+- PromptTypes
+- ExpectedContextModel*
 
-2. LLM Prompt Engineering Approach:
-Factors:
-- Requires API call to external service
-- Network latency
-- Large model inference time
-- Token processing overhead
-Expected Latency: ~500-2000ms per utterance depending on network availability and chosen model
-- Model inference: ~400-1800ms
+#### ExpectedContextModel Deep Dive
+This approach is based on contextual understanding of utterances:
+- Uses LSA approach combined with SVD dimension reduction
+- Models utterances based on their conversational context (replies and predecessors)
+- Embeds terms and utterances in a latent "context space" where proximity indicates similarity in expected conversational role/function
+- Creates shared vector space for terms, utterances and contexts through SVD
 
-3. SBERT-based Transformer:
-Factors:
-- Local computation possible
-- Optimized for sentence embeddings
-- Can run on CPU or GPU
-Expected Latency: ~50-200ms per utterance
-- Model inference: ~40-150ms
-- Embedding computation: ~10-50ms
-- Can be optimized further with batching
+**Strengths:** Excellent for specific tasks (understanding redirection in SCOTUS proceedings, therapy conversations, etc.) where conversational flow outweighs semantics; highly performant for large corpus analysis.
 
-These metric estimates assume:
-- Standard hardware (modern CPU/GPU) - SBERT was run on Nvidia RTX 5000 12GB vram (not optmized), LSA run on intel i7-9750H
-- naiive LLM baseline measured with standard OpenAI API endpoint with GPT-3.5 Turbo Instructor model (200 token limit per utterance, periods of low and high traffic)
-- Average utterance length (~20-50 words)
-- No extreme optimization
-- Single utterance processing (not batch)
+**Limitations:** Lacks versatility; requires domain-specific adaptations.
 
-The SBERT approach offers a good middle ground between Convokit's high performance but limited flexibility and LLM's high flexibility but poor latency. It provides reasonable latency while maintaining adaptability for various conversational understanding tasks.
+### LLM-based Approaches
 
-# Currently conducting  
-Evaluation of SBERT approach against convokit on convokit home stadium (expected context, predicted conversational flow, redirection) using Corpuses (originally compiled for convokit)
-# Next step
-Evaluation of SBERT approach against naiive LLM prompt engineering approach
+The other extreme uses large language models with prompt engineering:
 
+- Relies on centralized LLM APIs (OpenAI, Anthropic, Google, etc.)
+- Examples in production:
+  - Telephone agents for client information (Swartz center)
+  - Social media comment analysis/filtering
 
-# Specific Measures: Known examples in Convokit
-## Analysis of Parliamentary Question Periods
-- Classic Convokit approach only uses questions verbs, discarding surrounding text and nouns, not complete utterance
-- Tdf -> LSA : Global Utterance Clustering
-- forward context - answers not necessary for our application  
+**Strengths:** Highly general and adaptable.
 
-### What to implement with SBERT sentence transformer
-- global transform, implement similar clustering with reduced dimensions to extrapolate topic-term relation
-- implement same forward context, perform same analysis with Expected Conversational Context Framework
+**Limitations:** High resource consumption, centralized dependency, high latency.
 
-Here we can perform analysis on government versus nongovermental question types as described 
-https://github.com/CornellNLP/ConvoKit/blob/master/convokit/expected_context_framework/demos/parliament_demo.ipynb
+## Our Proposal: SBERT-based Transformer
+
+We propose a sentence-BERT based approach that offers:
+
+- General adaptability to many conversational understanding scenarios
+  - Bidirectional context understanding
+  - Semantic and topic relation understanding
+- Much higher performance than LLM prompt engineering
+  - Distributable computation (can run on personal computers)
+  - Suitable for decentralized applications
+- Higher quality and adaptability than traditional Convokit methods
+
+## Performance Benchmarks
+
+1. **Convokit Framework (ExpectedContextModel)**
+   - Expected Latency: ~10-50ms per utterance
+   - Factors: LSA + SVD computation (lightweight), no deep learning, reusable embeddings
+
+2. **LLM Prompt Engineering Approach**
+   - Expected Latency: ~500-2000ms per utterance
+   - Factors: API calls, network latency, large model inference, token overhead
+
+3. **SBERT-based Transformer**
+   - Expected Latency: ~50-200ms per utterance
+   - Factors: Local computation, optimized for sentence embeddings, GPU acceleration
+
+Testing conditions:
+- Hardware: SBERT on Nvidia RTX 5000 (12GB VRAM), LSA on Intel i7-9750H
+- LLM baseline: OpenAI API with GPT-3.5 Turbo Instructor (200 token limit)
+- Average utterance: 20-50 words
+- Single utterance processing (non-batched)
+
+## Current Research
+
+We are currently evaluating the SBERT approach against Convokit on its home turf:
+- Expected context modeling
+- Predicted conversational flow
+- Redirection detection
+- Using original Convokit corpuses for fair comparison
+
+## Next Steps
+
+Evaluation of the SBERT approach against naive LLM prompt engineering.
+
+## Implementation Examples
+
+### Parliamentary Question Period Analysis
+
+**Traditional Convokit approach:**
+- Uses only question verbs, discarding surrounding text and nouns
+- Applies Tdf → LSA for global utterance clustering
+- Models forward context (answers not necessary for our application)
+
+**Our SBERT implementation plan:**
+- Global transform with similar clustering but reduced dimensions to better capture topic-term relations
+- Implement same forward context modeling within Expected Conversational Context Framework
+- Perform comparative analysis on government versus non-governmental question types
+
+## References
+
+- [Convokit Documentation](https://convokit.cornell.edu/documentation/featureExtraction.html)
+- [Parliament Demo Analysis](https://github.com/CornellNLP/ConvoKit/blob/master/convokit/expected_context_framework/demos/parliament_demo.ipynb)
+
