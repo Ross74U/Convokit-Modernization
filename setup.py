@@ -9,7 +9,9 @@ setup(
         "pytest",
         "torch",
         "numpy",
-        "pandas",
         "convokit",
+        "sentence_transformers",
+        "umap-learn",
+        "seaborn"
     ],
 )

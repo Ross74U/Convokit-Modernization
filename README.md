@@ -4,6 +4,8 @@
 
 This project develops a middle-ground approach to conversational understanding that balances performance with flexibility. We compare traditional conversational analysis frameworks with modern LLM approaches and propose a more efficient SBERT-based solution for real-time applications.
 
+<img src="./agreement.png">
+
 ## Table of Contents
 - [Current Approaches](#current-approaches)
   - [Convokit Framework](#convokit-framework)
